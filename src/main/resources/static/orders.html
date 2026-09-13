@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff - Orders</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        button { padding: 4px 10px; }
+    </style>
+</head>
+<body>
+    <h1>Staff Order View</h1>
+    <label>Check order by ID:
+        <input id="orderId" type="number" min="1">
+        <button id="loadBtn">Load</button>
+    </label>
+
+    <table id="order-table" style="display:none; margin-top: 20px;">
+        <tr>
+            <th>ID</th><th>Customer</th><th>Item</th><th>Qty</th><th>Total</th><th>Status</th><th>Action</th>
+        </tr>
+        <tbody id="order-row"></tbody>
+    </table>
+
+    <p id="status"></p>
+
+    <script>
+        const statusEl = document.getElementById("status");
+        const table = document.getElementById("order-table");
+        const row = document.getElementById("order-row");
+
+        const nextStatus = {
+            PENDING: "PREPARING",
+            PREPARING: "READY",
+            READY: "COMPLETED"
+        };
+
+        async function loadOrder(id) {
+            const response = await fetch(`/api/v1/orders/${id}`);
+            if (!response.ok) {
+                const err = await response.json();
+                statusEl.textContent = `${response.status}: ${err.message}`;
+                table.style.display = "none";
+                return;
+            }
+            const order = await response.json();
+            renderOrder(order);
+        }
+
+        function renderOrder(order) {
+            statusEl.textContent = "";
+            table.style.display = "table";
+            const next = nextStatus[order.status];
+
+            row.innerHTML = `
+                <tr>
+                    <td>${order.id}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.itemName}</td>
+                    <td>${order.quantity}</td>
+                    <td>$${order.totalPrice.toFixed(2)}</td>
+                    <td>${order.status}</td>
+                    <td>${next ? `<button onclick="advanceStatus(${order.id}, '${next}')">Mark ${next}</button>` : "Done"}</td>
+                </tr>
+            `;
+        }
+
+        async function advanceStatus(id, newStatus) {
+            const response = await fetch(`/api/v1/orders/${id}/status`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus })
+            });
+            const order = await response.json();
+            renderOrder(order);
+        }
+
+        document.getElementById("loadBtn").addEventListener("click", () => {
+            const id = document.getElementById("orderId").value;
+            if (id) loadOrder(id);
+        });
+    </script>
+</body>
+</html>

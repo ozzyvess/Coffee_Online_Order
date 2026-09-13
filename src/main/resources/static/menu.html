@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Coffee Menu</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+        .item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; }
+        .item.unavailable { opacity: 0.5; }
+        button { padding: 6px 12px; }
+        #status { margin-top: 15px; font-weight: bold; }
+        #output { white-space: pre-wrap; background: #f4f4f4; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Coffee Menu</h1>
+    <div id="menu"></div>
+
+    <h2>Place an order</h2>
+    <form id="order-form">
+        <label>Your name:
+            <input id="customerName" required>
+        </label><br><br>
+        <label>Coffee:
+            <select id="menuItemId" required></select>
+        </label><br><br>
+        <label>Quantity:
+            <input id="quantity" type="number" min="1" value="1" required>
+        </label><br><br>
+        <button type="submit">Place order</button>
+    </form>
+
+    <p id="status"></p>
+    <pre id="output"></pre>
+
+    <script>
+        const menuDiv = document.getElementById("menu");
+        const menuSelect = document.getElementById("menuItemId");
+        const status = document.getElementById("status");
+        const output = document.getElementById("output");
+
+        async function loadMenu() {
+            const response = await fetch("/api/v1/menu");
+            const items = await response.json();
+
+            menuDiv.innerHTML = "";
+            menuSelect.innerHTML = "";
+
+            items.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "item" + (item.available ? "" : " unavailable");
+                div.textContent = `${item.name} (${item.size}) - $${item.price.toFixed(2)}` +
+                    (item.available ? "" : " [unavailable]");
+                menuDiv.appendChild(div);
+
+                if (item.available) {
+                    const option = document.createElement("option");
+                    option.value = item.id;
+                    option.textContent = `${item.name} (${item.size}) - $${item.price.toFixed(2)}`;
+                    menuSelect.appendChild(option);
+                }
+            });
+        }
+
+        document.getElementById("order-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const body = {
+                customerName: document.getElementById("customerName").value,
+                menuItemId: Number(document.getElementById("menuItemId").value),
+                quantity: Number(document.getElementById("quantity").value)
+            };
+
+            status.textContent = "Sending order...";
+
+            const response = await fetch("/api/v1/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+            status.textContent = `${response.status} ${response.statusText}`;
+            output.textContent = JSON.stringify(data, null, 2);
+        });
+
+        loadMenu();
+    </script>
+</body>
+</html>
