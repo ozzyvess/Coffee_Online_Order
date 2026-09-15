@@ -18,7 +18,7 @@ Customers can look at the menu and place an order. Staff can check an order and 
 2. Set the DB password (not stored in the repo, need to set it yourself):
 
 ```powershell
-$env:DB_PASSWORD = "the password you were given"
+$env:DB_PASSWORD = "db password"
 ```
 
 3. Run it:

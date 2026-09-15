@@ -1,0 +1,16 @@
+[
+  {"name":"Short Black","size":"Regular","price":4.50},
+  {"name":"Long Black","size":"Regular","price":5.00},
+  {"name":"Americano","size":"Regular","price":5.00},
+  {"name":"Flat White","size":"Medium","price":5.50},
+  {"name":"Flat White","size":"Large","price":6.00},
+  {"name":"Cappuccino","size":"Medium","price":5.50},
+  {"name":"Cappuccino","size":"Large","price":6.00},
+  {"name":"Mochaccino","size":"Medium","price":6.00},
+  {"name":"Mochaccino","size":"Large","price":6.50},
+  {"name":"Matcha Latte","size":"Medium","price":6.00},
+  {"name":"Matcha Latte","size":"Large","price":6.50},
+  {"name":"Iced Americano","size":"Regular","price":6.00},
+  {"name":"Iced Latte","size":"Regular","price":6.50},
+  {"name":"Iced Matcha","size":"Regular","price":6.50}
+]
